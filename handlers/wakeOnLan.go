@@ -46,7 +46,7 @@ func WakeOnLan(w http.ResponseWriter, r *http.Request) {
 			})
 			continue
 		}
-		err = share.MagicPacket{HWAddr: mac, Device: pc.HWAddr, IPAddr: pc.IPAddr, Port: pc.Port}.SendMagicPacket()
+		err = share.MagicPacket{HWAddr: mac, Device: pc.Device, IPAddr: pc.IPAddr, Port: pc.Port}.SendMagicPacket()
 		if err == nil {
 			respond = append(respond, wolRespond{
 				RequestNo: i + 1,
