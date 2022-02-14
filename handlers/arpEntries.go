@@ -8,9 +8,9 @@ import (
 	"github.com/ahmetozer/wakeonlan/share"
 )
 
-// Macs
+// ArpEntries
 // Serve mac addresses
-func ArpTable(w http.ResponseWriter, r *http.Request) {
+func ArpEntries(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return

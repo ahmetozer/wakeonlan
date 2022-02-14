@@ -10,10 +10,10 @@ import (
 )
 
 type wol struct {
-	MAC  string
-	IF   string
-	ADDR string
-	PORT string
+	HWAddr string
+	Device string
+	IPAddr string
+	Port   string
 }
 
 type wolRespond struct {
@@ -38,7 +38,7 @@ func WakeOnLan(w http.ResponseWriter, r *http.Request) {
 	respond := []wolRespond{}
 
 	for i, pc := range PCs {
-		mac, err := net.ParseMAC(pc.MAC)
+		mac, err := net.ParseMAC(pc.HWAddr)
 		if err != nil {
 			respond = append(respond, wolRespond{
 				RequestNo: i + 1,
@@ -46,7 +46,7 @@ func WakeOnLan(w http.ResponseWriter, r *http.Request) {
 			})
 			continue
 		}
-		err = share.MagicPacket{MAC: mac, IF: pc.IF, ADDR: pc.ADDR, PORT: pc.PORT}.SendMagicPacket()
+		err = share.MagicPacket{HWAddr: mac, Device: pc.HWAddr, IPAddr: pc.IPAddr, Port: pc.Port}.SendMagicPacket()
 		if err == nil {
 			respond = append(respond, wolRespond{
 				RequestNo: i + 1,

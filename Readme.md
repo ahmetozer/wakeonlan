@@ -22,36 +22,29 @@ List the interfaces with IP addresses.
 ```json
 [
     {
-        "Ifname": "lo",
-        "Ifaddrs": [
+        "Device": "lo",
+        "IPAddr": [
             "127.0.0.1/8",
             "::1/128"
-        ]
-    },
-    {
-        "Ifname": "eth0",
-        "Ifaddrs": [
-            "172.23.91.231/20",
-            "fe80::215:5dff:fef6:b545/64"
         ]
     }
 ]
 ```
 
-### Arptables
+### ArpEntries
 
 List the MAC addreses with details.
 
 - Method: *`GET`*
-- Endpoint: `/api/arptable`
+- Endpoint: `/api/arpentries`
 
 ```json
 [
     {
-        "IPAddress": "172.23.80.1",
+        "IPAddr": "172.23.80.1",
         "HWType": "0x1",
         "Flags": "0x2",
-        "HWAddress": "00:15:5d:f5:bd:67",
+        "HWAddr": "00:15:5d:f5:bd:67",
         "Mask": "*",
         "Device": "eth0"
     }
@@ -103,7 +96,7 @@ import (
 
 func main() {
     mac, _ := net.ParseMAC("00:15:5d:f5:bd:67")
-    err := wakeonlan.MagicPacket{MAC: mac, IF: "eth0", ADDR: "255.255.255.255", PORT: "7"}.SendMagicPacket()
-    fmt.Printf("%v",err)
+    err := wakeonlan.MagicPacket{HWAddr: mac, Device: "eth0", IPAddr: "255.255.255.255", Port: "7"}.SendMagicPacket()
+    fmt.Printf("%v", err)
 }
 ```

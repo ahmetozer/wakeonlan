@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	f_IPAddress uint8 = iota
+	f_IPAddr uint8 = iota
 	f_HWType
 	f_Flags
 	f_HWAddr
@@ -16,12 +16,12 @@ const (
 )
 
 type ArpTableItem struct {
-	IPAddress string
-	HWType    string
-	Flags     string
-	HWAddress string
-	Mask      string
-	Device    string
+	IPAddr string
+	HWType string
+	Flags  string
+	HWAddr string
+	Mask   string
+	Device string
 }
 
 type ArpTable []ArpTableItem
@@ -44,12 +44,12 @@ func GetArpTable() (ArpTable, error) {
 	for s.Scan() {
 		fields := strings.Fields(s.Text())
 		line = append(line, ArpTableItem{
-			IPAddress: fields[f_IPAddress],
-			HWType:    fields[f_HWType],
-			Flags:     fields[f_Flags],
-			HWAddress: fields[f_HWAddr],
-			Mask:      fields[f_Mask],
-			Device:    fields[f_Device],
+			IPAddr: fields[f_IPAddr],
+			HWType: fields[f_HWType],
+			Flags:  fields[f_Flags],
+			HWAddr: fields[f_HWAddr],
+			Mask:   fields[f_Mask],
+			Device: fields[f_Device],
 		})
 	}
 

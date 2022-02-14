@@ -6,18 +6,18 @@ import (
 )
 
 type MagicPacket struct {
-	MAC  net.HardwareAddr
-	IF   string
-	ADDR string
-	PORT string
+	HWAddr net.HardwareAddr
+	Device string
+	IPAddr string
+	Port   string
 }
 
 // SendMagicPacket
 // Send magic packet to destination to wake up the remote
 func (MP MagicPacket) SendMagicPacket() error {
 
-	if len(MP.MAC) != 6 {
-		return fmt.Errorf("invalid mac '%v'", MP.MAC)
+	if len(MP.HWAddr) != 6 {
+		return fmt.Errorf("invalid mac '%v'", MP.HWAddr)
 	}
 
 	var packet [102]byte
@@ -25,11 +25,11 @@ func (MP MagicPacket) SendMagicPacket() error {
 	offset := 6
 
 	for i := 0; i < 16; i++ {
-		copy(packet[offset:], MP.MAC)
+		copy(packet[offset:], MP.HWAddr)
 		offset += 6
 	}
 
-	ief, err := net.InterfaceByName(MP.IF)
+	ief, err := net.InterfaceByName(MP.Device)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (MP MagicPacket) SendMagicPacket() error {
 			Port: 500,
 		},
 	}
-	conn, err := dialer.Dial("udp", MP.ADDR+":"+MP.PORT)
+	conn, err := dialer.Dial("udp", MP.IPAddr+":"+MP.Port)
 	if err != nil {
 		return err
 	}

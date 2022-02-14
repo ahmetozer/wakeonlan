@@ -24,7 +24,7 @@ func main() {
 
 	http.HandleFunc("/api/interfaces", handlers.Interfaces)
 
-	http.HandleFunc("/api/arptable", handlers.ArpTable)
+	http.HandleFunc("/api/arpentries", handlers.ArpEntries)
 
 	http.HandleFunc("/api/wakeonlan", handlers.WakeOnLan)
 

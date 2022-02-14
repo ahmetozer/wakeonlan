@@ -5,8 +5,8 @@ import (
 )
 
 type Interface struct {
-	Ifname  string
-	Ifaddrs []string
+	Device string
+	IPAddr []string
 }
 
 // GetInterfaces
@@ -25,7 +25,7 @@ func GetInterfaces() ([]Interface, error) {
 
 		if err != nil {
 			tempInterfaces = append(tempInterfaces, Interface{
-				Ifname: i.Name,
+				Device: i.Name,
 			})
 			continue
 		}
@@ -36,8 +36,8 @@ func GetInterfaces() ([]Interface, error) {
 		}
 
 		tempInterfaces = append(tempInterfaces, Interface{
-			Ifname:  i.Name,
-			Ifaddrs: tempIfaddrs,
+			Device: i.Name,
+			IPAddr: tempIfaddrs,
 		})
 
 	}
