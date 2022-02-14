@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Wake On Lan</title>
+
+  <meta name="description" content="Wake up the computer from remote">
+  <meta property="og:title" content="Wake On Lan">
+  <meta property="og:description" content="Wake up the computer from remote">
+  <meta property="og:type" content="website">
+  <meta name="author" content="https://ahmetozer.org">
+  <meta name="theme-color" content="#000000">
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <section class="form">
+    <h1>Wake On Lan</h1>
+    <p>Wake up the computers</p>
+
+    <form action="javascript:wol()" id="wol">
+      <div class="input-group">
+        <label for="hwaddr">HWAddr:</label>
+        <input type="text" id="HWAddr" name="hwaddr" value="" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
+          required>
+      </div>
+
+      <div class="input-group">
+        <label for="device">Device:</label>
+        <input type="text" id="Device" name="device" value="" required>
+      </div>
+
+      <div class="input-group">
+        <label for="ipaddr">IPAddr:</label>
+        <input type="text" id="IPAddr" name="ipaddr" value="255.255.255.255"
+          pattern="^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.){3}(25[0-5]|(2[0-4]|1\d|[1-9]|)\d)$" required>
+        <label for="port">Port:</label>
+        <input type="number" min="0" max="65535" id="Port" name="port" value="7">
+      </div>
+
+      <div class="input-group">
+        <input type="submit">
+      </div>
+
+    </form>
+  </section>
+
+
+  <div class="list">
+    <button onclick="getArp()" class="refresh">🔃</button><br>
+    <ul id="list">
+    </ul>
+  </div>
+
+  <div class="results">
+    <h2>Respond</h2>
+    <pre id="respond"></pre>
+  </div>
+
+  <div class="results">
+    <a href="https://ahmetozer.org">https://ahmetozer.org</a>
+  </div>
+  <script>
+    function updateArpList(table) {
+      let text = "";
+      document.getElementById("list").innerHTML = "";
+      function items(item, index) {
+        text += `<li>
+                <p id="hw-`+ index + `" class="inlb">` + item.HWAddr + `</p>
+                <p id="ip-`+ index + `" class="inlb">` + item.IPAddr + `</p>
+                <p id="dev-`+ index + `" class="inlb">` + item.Device + `</p>
+                <button onclick="btnselect('`+ index + `')" class="inlb">select</button>
+                <button onclick="btnwake('`+ index + `')" class="inlb"s>wake</button>
+            </li>`
+      }
+
+      table.forEach(items);
+      document.getElementById("list").innerHTML = text;
+    }
+    function getArp() {
+      let url = '/api/arpentries';
+
+      fetch(url)
+        .then(res => res.json())
+        .then((out) => {
+          updateArpList(out)
+        })
+        .catch(err => { throw err });
+    }
+    function btnselect(id) {
+      document.getElementById("HWAddr").value = document.getElementById("hw-" + id).innerHTML
+      document.getElementById("Device").value = document.getElementById("dev-" + id).innerHTML
+    }
+    function btnwake(id) {
+      btnselect(id)
+      document.getElementById("wol").submit();
+    }
+    function wol() {
+      const data = new FormData(document.getElementById("wol"));
+      const arr = [];
+      arr.push(Object.fromEntries(data.entries()));
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/wakeonlan", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onreadystatechange = function () {
+        if (this.readyState != 4) return;
+        if (this.status >= 200 && this.status < 300) {
+          document.getElementById("respond").innerText = JSON.stringify(JSON.parse(this.responseText), null, 2)
+        }
+      };
+
+      xhr.send(JSON.stringify(arr));
+    }
+
+    getArp()
+  </script>
+</body>
+
+</html>
