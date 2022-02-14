@@ -7,6 +7,12 @@ This application is implemented with golang to wake up the computers.
 By default, http server listens `:8080` address.
 To change or bind different address, set *`LISTEN`* environment variable.
 
+## Container
+
+```bash
+docker run -it --rm --network host ghcr.io/ahmetozer/wakeonlan
+```
+
 ## Available API endpoints
 
 You wake up the computers via web ui or if you want you can
@@ -55,8 +61,8 @@ List the MAC addreses with details.
 
 To wake up the computers.
 
-- Method: POST
-- Endpoint: /api/wakeonlan
+- Method: *`POST`*
+- Endpoint: `/api/wakeonlan`
 
 Example request body
 
