@@ -12,44 +12,51 @@ type MagicPacket struct {
 	Port   string
 }
 
+const magicPacketSize = 102
+
 // SendMagicPacket
 // Send magic packet to destination to wake up the remote
-func (MP MagicPacket) SendMagicPacket() error {
+func (mp *MagicPacket) SendMagicPacket() error {
 
-	if len(MP.HWAddr) != 6 {
-		return fmt.Errorf("invalid mac '%v'", MP.HWAddr)
+	if len(mp.HWAddr) != 6 {
+		return fmt.Errorf("invalid mac '%v'", mp.HWAddr)
 	}
 
-	var packet [102]byte
+	var packet [magicPacketSize]byte
 	copy(packet[0:], []byte{255, 255, 255, 255, 255, 255})
 	offset := 6
 
 	for i := 0; i < 16; i++ {
-		copy(packet[offset:], MP.HWAddr)
+		copy(packet[offset:], mp.HWAddr)
 		offset += 6
 	}
 
-	ief, err := net.InterfaceByName(MP.Device)
+	iface, err := net.InterfaceByName(mp.Device)
 	if err != nil {
-		return err
+		return fmt.Errorf("interface by name: %w", err)
 	}
-	addrs, err := ief.Addrs()
+
+	addrs, err := iface.Addrs()
 	if err != nil {
-		return err
+		return fmt.Errorf("interface addrs: %w", err)
 	}
 
 	dialer := &net.Dialer{
 		LocalAddr: &net.UDPAddr{
 			IP:   addrs[0].(*net.IPNet).IP,
-			Port: 500,
+			Port: 0,
 		},
 	}
-	conn, err := dialer.Dial("udp", MP.IPAddr+":"+MP.Port)
+	conn, err := dialer.Dial("udp", mp.IPAddr+":"+mp.Port)
 	if err != nil {
-		return err
+		return fmt.Errorf("dial: %w", err)
 	}
 	defer conn.Close()
 
 	_, err = conn.Write(packet[:])
-	return err
+	if err != nil {
+		return fmt.Errorf("write: %w", err)
+	}
+
+	return nil
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/ahmetozer/wakeonlan/share"
 )
 
-type wol struct {
+type wolRequest struct {
 	HWAddr string
 	Device string
 	IPAddr string
@@ -21,32 +21,42 @@ type wolRespond struct {
 	Status    string
 }
 
+// WakeOnLan is a handler for wake on lan.
 func WakeOnLan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
-	var PCs []wol
+	var wolTargets []wolRequest
 
-	err := json.NewDecoder(r.Body).Decode(&PCs)
+	err := json.NewDecoder(r.Body).Decode(&wolTargets)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+
 		return
 	}
 
-	respond := []wolRespond{}
+	var respond []wolRespond
 
-	for i, pc := range PCs {
-		mac, err := net.ParseMAC(pc.HWAddr)
+	for i, wolTarget := range wolTargets {
+		mac, err := net.ParseMAC(wolTarget.HWAddr)
 		if err != nil {
 			respond = append(respond, wolRespond{
 				RequestNo: i + 1,
-				Status:    err.Error(),
+				Status:    fmt.Sprintf("invalid MAC address: %s", wolTarget.HWAddr),
 			})
 			continue
 		}
-		err = share.MagicPacket{HWAddr: mac, Device: pc.Device, IPAddr: pc.IPAddr, Port: pc.Port}.SendMagicPacket()
+
+		magicPacket := share.MagicPacket{
+			HWAddr: mac,
+			Device: wolTarget.Device,
+			IPAddr: wolTarget.IPAddr,
+			Port:   wolTarget.Port,
+		}
+
+		err = magicPacket.SendMagicPacket()
 		if err == nil {
 			respond = append(respond, wolRespond{
 				RequestNo: i + 1,
@@ -55,20 +65,16 @@ func WakeOnLan(w http.ResponseWriter, r *http.Request) {
 		} else {
 			respond = append(respond, wolRespond{
 				RequestNo: i + 1,
-				Status:    err.Error(),
+				Status:    fmt.Sprintf("packet send error: %v", err),
 			})
 		}
 	}
 
-	jsonResp, err := json.Marshal(respond)
+	err = json.NewEncoder(w).Encode(respond)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(fmt.Sprintf("{\"status\":\"%v\",\"error\":\"%v\"}", http.StatusInternalServerError, err)))
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+
 		return
 	}
-
-	w.WriteHeader(http.StatusAccepted)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResp)
 }

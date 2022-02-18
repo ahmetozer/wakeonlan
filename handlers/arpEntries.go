@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/ahmetozer/wakeonlan/share"
@@ -16,23 +15,19 @@ func ArpEntries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ArpTable, err := share.GetArpTable()
+	arpTable, err := share.GetArpTable()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(fmt.Sprintf("{\"status\":\"%v\",\"error\":\"%v\"}", http.StatusInternalServerError, err)))
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+
 		return
 	}
 
-	jsonResp, err := json.Marshal(ArpTable)
+	err = json.NewEncoder(w).Encode(arpTable)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(fmt.Sprintf("{\"status\":\"%v\",\"error\":\"%v\"}", http.StatusInternalServerError, err)))
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+
 		return
 	}
-
-	w.WriteHeader(http.StatusAccepted)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResp)
 }

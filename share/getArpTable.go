@@ -2,17 +2,18 @@ package share
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
 )
 
 const (
-	f_IPAddr uint8 = iota
-	f_HWType
-	f_Flags
-	f_HWAddr
-	f_Mask
-	f_Device
+	fieldIPAddr uint8 = iota
+	fieldHWType
+	fieldFlags
+	fieldHWAddr
+	fieldMask
+	fieldDevice
 )
 
 type ArpTableItem struct {
@@ -29,13 +30,13 @@ type ArpTable []ArpTableItem
 // GetArpTable
 // Read arp table from Linux arp table
 func GetArpTable() (ArpTable, error) {
-	line := []ArpTableItem{}
+	var line []ArpTableItem
 
 	f, err := os.Open("/proc/net/arp")
-
 	if err != nil {
-		return line, err
+		return line, fmt.Errorf("open file: %w", err)
 	}
+
 	defer f.Close()
 
 	s := bufio.NewScanner(f)
@@ -44,12 +45,12 @@ func GetArpTable() (ArpTable, error) {
 	for s.Scan() {
 		fields := strings.Fields(s.Text())
 		line = append(line, ArpTableItem{
-			IPAddr: fields[f_IPAddr],
-			HWType: fields[f_HWType],
-			Flags:  fields[f_Flags],
-			HWAddr: fields[f_HWAddr],
-			Mask:   fields[f_Mask],
-			Device: fields[f_Device],
+			IPAddr: fields[fieldIPAddr],
+			HWType: fields[fieldHWType],
+			Flags:  fields[fieldFlags],
+			HWAddr: fields[fieldHWAddr],
+			Mask:   fields[fieldMask],
+			Device: fields[fieldDevice],
 		})
 	}
 

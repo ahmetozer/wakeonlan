@@ -2,44 +2,48 @@ package web
 
 import (
 	"embed"
-	"fmt"
+	"encoding/json"
 	"net/http"
 )
 
 type page struct {
-	file  string
-	ctype string
+	file        string
+	contentType string
 }
 
 var (
 	//go:embed static
 	static embed.FS
 	pages  = map[string]page{
-		"/":          {file: "static/index.html", ctype: "text/html"},
-		"/style.css": {file: "static/style.css", ctype: "text/css"},
+		"/":          {file: "static/index.html", contentType: "text/html"},
+		"/style.css": {file: "static/style.css", contentType: "text/css"},
 	}
 )
 
+// Index is the main entry point for the web server.
 func Index(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
+
 		return
 	}
 
 	page, ok := pages[r.URL.Path]
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
+
 		return
 	}
 
-	p, err := static.ReadFile(page.file)
+	fileContent, err := static.ReadFile(page.file)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(fmt.Sprintf("{\"status\":\"%v\",\"error\":\"%v\"}", http.StatusInternalServerError, err)))
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+
 		return
 	}
-	w.Header().Set("Content-Type", page.ctype)
+
+	w.Header().Set("Content-Type", page.contentType)
 	w.WriteHeader(http.StatusOK)
-	w.Write(p)
+	w.Write(fileContent)
 }
