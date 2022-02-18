@@ -5,42 +5,43 @@ import (
 )
 
 type Interface struct {
-	Device string
+	Name   string
 	IPAddr []string
 }
 
 // GetInterfaces
-// Get list of the interfaces with IP addresses
+// Get list of the interfaces with or without IP addresses
 func GetInterfaces() ([]Interface, error) {
 
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return []Interface{}, err
 	}
-	tempInterfaces := []Interface{}
 
-	for _, i := range ifaces {
+	var netInterfaces []Interface
 
-		addrs, err := i.Addrs()
+	for _, iface := range ifaces {
 
+		addrs, err := iface.Addrs()
 		if err != nil {
-			tempInterfaces = append(tempInterfaces, Interface{
-				Device: i.Name,
+			netInterfaces = append(netInterfaces, Interface{
+				Name: iface.Name,
 			})
 			continue
 		}
-		tempIfaddrs := []string{}
 
-		for _, a := range addrs {
-			tempIfaddrs = append(tempIfaddrs, a.String())
+		var ipAddrs []string
+
+		for _, addr := range addrs {
+			ipAddrs = append(ipAddrs, addr.String())
 		}
 
-		tempInterfaces = append(tempInterfaces, Interface{
-			Device: i.Name,
-			IPAddr: tempIfaddrs,
+		netInterfaces = append(netInterfaces, Interface{
+			Name:   iface.Name,
+			IPAddr: ipAddrs,
 		})
 
 	}
 
-	return tempInterfaces, nil
+	return netInterfaces, nil
 }

@@ -28,7 +28,7 @@ func main() {
 
 	http.HandleFunc("/api/wakeonlan", handlers.WakeOnLan)
 
-	log.Printf("Starting http server on \"%v\"\n", LISTEN)
+	log.Printf("Starting http server on %q \n", LISTEN)
 	err := http.ListenAndServe(LISTEN, nil)
 	if err != nil {
 		log.Fatal(err)
