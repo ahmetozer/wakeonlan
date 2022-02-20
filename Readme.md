@@ -73,6 +73,18 @@ Example request body
         "if": "lo",
         "addr": "255.255.255.255",
         "port": "7"
+    },
+    {
+        "mac": "00:15:5d:f5:bd:67",
+        "if": "eth0",
+        "addr": "fe80::900d:cafe:900d:c0de",
+        "port": "7"
+    },
+    {
+        "mac": "00:15:5d:f5:bd:67",
+        "if": "eth0",
+        "addr": "2001:db8:900d:cafe:900d:c0de:900d:11fe",
+        "port": "7"
     }
 ]
 
