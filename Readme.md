@@ -114,7 +114,10 @@ import (
 
 func main() {
     mac, _ := net.ParseMAC("00:15:5d:f5:bd:67")
-    err := wakeonlan.MagicPacket{HWAddr: mac, Device: "eth0", IPAddr: "255.255.255.255", Port: "7"}.SendMagicPacket()
+    packet := wakeonlan.MagicPacket{HWAddr: mac, Device: "eth0", IPAddr: "255.255.255.255", Port: "7"}
+    err := packet.SendMagicPacket()
+    if err != nil {
     fmt.Printf("%v", err)
+    }
 }
 ```
